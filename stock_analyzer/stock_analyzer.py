@@ -1,3 +1,4 @@
+import os
 import time
 import requests
 import configparser
@@ -9,7 +10,7 @@ import matplotlib.dates as mdates
 
 # Read user configuration data from configuration.ini
 config = configparser.ConfigParser()
-config.read('configuration.ini')
+config.read(os.path.join(os.path.dirname(__file__), '../', 'configuration.ini'))
 
 num_entries_to_analyze = 40
 
