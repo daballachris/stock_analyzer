@@ -1,9 +1,14 @@
 import numpy as np
 import pandas as pd
 import requests
+import configparser
 
-with open('./configuration') as f:
-    configuration = f.read()
+config = configparser.ConfigParser()
+config['API_KEY'] = ''
+
+with open('./configuration') as config_file:
+    config.write(config_file)
+
 
 def get_supports_and_resistances(ltp: np.array, n: int) -> (list, list):
     """
