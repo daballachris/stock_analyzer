@@ -13,4 +13,4 @@ After running setup.py, configuration.ini will be created. Enter your TD Ameritr
 TD Ameritrade API
 #################
 
-You can create a free developer account and register for an API key `here <http://https://developer.tdameritrade.com/apis/>`_.
+You can create a free developer account and register for an API key `here <https://developer.tdameritrade.com/apis/>`_.
