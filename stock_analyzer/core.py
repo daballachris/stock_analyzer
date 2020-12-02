@@ -49,8 +49,6 @@ def lookup_ticker(ticker: str,
     ohlc = pd.DataFrame.from_records(data['candles'])
 
     if ohlc.empty:
-        #  TODO: How should we handle this?
-        #  raise LookupError("No data returned")
         return None
 
     ohlc = ohlc[['datetime', 'open', 'high', 'low', 'close', 'volume']]
