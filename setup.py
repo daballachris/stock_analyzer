@@ -10,7 +10,7 @@ with open('LICENSE') as f:
 
 setup(
     name='stock_analyzer',
-    version='0.0.1', # TODO: Read the version from a file
+    version='0.0.1',  # TODO: Read the version from a file
     description='A package for analyzing stock patterns',
     long_description=readme_text,
     author='Christopher Duane Smith',
