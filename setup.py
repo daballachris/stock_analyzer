@@ -10,10 +10,11 @@ with open('LICENSE') as f:
 
 setup(
     name='stock_analyzer',
-    version='0.0.1',
+    version='0.0.1', # TODO: Read the version from a file
     description='A package for analyzing stock patterns',
     long_description=readme_text,
     author='Christopher Duane Smith',
+    entry_points = {'console_scripts': ['stock_analyzer=stock_analyzer.cli:main']},
     author_email='daballachris@protonmail.com',
     url='https://github.com/daballachris/stock_analyzer',
     license=license_text,
