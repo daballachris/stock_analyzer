@@ -1,13 +1,17 @@
-import numpy as np
-import pandas as pd
+import time
 import requests
 import configparser
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from mpl_finance import candlestick_ohlc
+import matplotlib.dates as mdates
 
+# Read user configuration data from configuration.ini
 config = configparser.ConfigParser()
-config['API_KEY'] = ''
+config.read('configuration.ini')
 
-with open('./configuration') as config_file:
-    config.write(config_file)
+num_entries_to_analyze = 40
 
 
 def get_supports_and_resistances(ltp: np.array, n: int) -> (list, list):
@@ -86,26 +90,136 @@ def lookup_ticker(ticker: str) -> pd.DataFrame:
     tda_period_type = "month"  # day, month, year, ytd
     tda_frequency = 1
     tda_frequency_type = "daily"  # minute, daily, weekly, monthly
-    end_date = ''
+    end_date = int(round(time.time() * 1000))
 
     endpoint = f"https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory"
     payload = {
-        'apikey': configuration['API_KEY'],
+        'apikey': config['AMERITRADE']['API_KEY'],
         'period': tda_period,
         'periodType': tda_period_type,
         'frequency': tda_frequency,
         'frequencyType': tda_frequency_type,
         'needExtendedHoursData': 'false',
-        'endDate': end_date,
+        'end_date': end_date,
     }
 
-    content = requests.get(url = endpoint, params = payload)
+    content = requests.get(url=endpoint, params=payload)
     data = content.json()
+
     ohlc = pd.DataFrame.from_records(data['candles'])
     ohlc = ohlc[['datetime', 'open', 'high', 'low', 'close', 'volume']]
+
+    # Only look at last X entries
+    ohlc = ohlc[-num_entries_to_analyze:]
+    ohlc = pd.DataFrame.reset_index(ohlc, drop=True)  # Reset index, drop old index
+    ohlc['datetime'] = mdates.epoch2num(ohlc['datetime'] / 1000)
 
     return ohlc
 
 
+class TrendLine:
+    def __init__(self, b, m, touches, first_day):
+        self.b = b
+        self.m = m
+        self.touches = touches
+        self.first_day = first_day
+
+
+def best_fit_line(prices: list, derivatives: list, is_support: bool = True) -> TrendLine:
+
+    best_count = 0
+    best_trendline = None
+
+    margin = 0.05
+    price_margin = margin * (max(prices) - min(prices))
+
+    # Try every combination of derivative points
+    for derivative_start in range(len(derivatives)):
+        # print(str(derivative_start), end=", ")
+        for derivative_end in range(derivative_start + 1, len(derivatives)):
+
+            # print(str(derivative_end), end=", ")
+
+            # Calculate slope and y-intercept for these 2 derivative points
+            m = (prices[derivatives[derivative_end]]
+                 - prices[derivatives[derivative_start]]) / (
+                        derivatives[derivative_end]
+                        - derivatives[derivative_start])
+            b = prices[derivatives[derivative_end]] - m * derivatives[derivative_end]
+
+            # Loop through all prices to make sure none pass through this line
+            for k in range(len(prices)):
+                test_y = m * k + b
+                if is_support:
+                    test_y = test_y - price_margin
+                else:
+                    test_y = test_y + price_margin
+
+                if prices[k] < test_y and is_support \
+                        or prices[k] > test_y and not is_support:
+                    break
+
+            else:
+                # No prices broke through the trendline, so count the number of times the
+                # prices touch (come within price_margin) the trendline
+
+                touch_count = 0
+                for k in range(len(derivatives)):
+                    test_y = m * derivatives[k] + b
+                    if test_y - price_margin <= \
+                            prices[derivatives[k]] <= test_y + price_margin:
+                        touch_count += 1
+
+                if touch_count >= best_count:
+                    best_count = touch_count
+                    best_trendline = TrendLine(b, m, best_count, derivatives[derivative_start])
+
+    return best_trendline
+
+
 if __name__ == "__main__":
-    print("nothing")
+    stock_symbol = input("Enter stock symbol: ")
+    price_history = lookup_ticker(stock_symbol)
+
+    support_points, resistance_points = get_supports_and_resistances(price_history, 2)
+
+    best_support_line = best_fit_line(price_history['low'], support_points)
+    best_resistance_line = best_fit_line(price_history['high'], resistance_points, False)
+
+    fig = plt.figure()
+    ax1 = plt.subplot2grid((1, 1), (0, 0))
+    candlestick_ohlc(ax1, price_history.values, width=0.0001, colorup='g', colordown='r')
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.title(stock_symbol)
+
+    for label in ax1.xaxis.get_ticklabels():
+        label.set_rotation(45)
+
+    # Plot points for each maxima/minima found
+    for i in support_points:
+        plt.plot(price_history['datetime'][i], price_history['low'][i], 'b+')
+
+    for i in resistance_points:
+        plt.plot(price_history['datetime'][i], price_history['high'][i], 'y+')
+
+    axes = plt.gca()
+
+    ymin, ymax = axes.get_ylim()
+    xmin, xmax = axes.get_xlim()
+
+    x_vals = np.array(range(len(price_history['datetime'])))
+    x_dates = np.array(price_history['datetime'])
+
+    if best_resistance_line:
+        y_vals_res = best_resistance_line.m * x_vals + best_resistance_line.b
+        plt.plot(x_dates, y_vals_res, '--')
+
+    if best_support_line:
+        y_vals_sup = best_support_line.m * x_vals + best_support_line.b
+        plt.plot(x_dates, y_vals_sup, '--')
+
+    # re-set the y limits
+    axes.set_ylim(ymin, ymax)
+    axes.set_xlim(xmin, xmax)
+
+    plt.show()

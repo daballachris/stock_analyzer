@@ -132,4 +132,4 @@ dmypy.json
 .pyre/
 
 # stock_analyzer config file
-stock_analyzer/configuration
+configuration.ini

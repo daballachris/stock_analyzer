@@ -1,3 +1,4 @@
+import configparser
 from setuptools import setup, find_packages
 
 
@@ -18,3 +19,9 @@ setup(
     license=license_text,
     packages=find_packages(exclude=('tests',)),
 )
+
+config = configparser.ConfigParser()
+config['AMERITRADE'] = {'API_KEY': ''}
+
+with open('configuration.ini', 'w') as config_file:
+    config.write(config_file)
