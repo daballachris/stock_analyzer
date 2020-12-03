@@ -4,7 +4,9 @@ import sys
 from stock_analyzer import core
 
 
-def main(argv):
+def main():
+    argv = sys.argv
+
     patterns = core.load_patterns()
     stock_symbol = ""
     end_date = ""
@@ -30,6 +32,10 @@ def main(argv):
     print(f"Looking up historical price data for {stock_symbol}")
     price_history = core.lookup_ticker(stock_symbol, end_date=end_date)
 
+    if price_history is None:
+        print("Nothing found!")
+        sys.exit(0)
+
     support_points, resistance_points = \
         core.get_supports_and_resistances(price_history, 2)
 
@@ -50,4 +56,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()

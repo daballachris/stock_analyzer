@@ -292,7 +292,14 @@ def lookup_ticker(ticker: str,
         print("ProxyError, maybe you need to connect to to your proxy server?")
         sys.exit()
 
-    data = content.json()
+    try:
+        data = content.json()
+    except json.decoder.JSONDecodeError:
+        print("Error, API Request Returned: " + str(content))
+        print("Endpoint: " + endpoint)
+        print("payload:: " + str(payload))
+        return None
+
     candle_data = pd.DataFrame.from_records(data['candles'])
 
     if candle_data.empty:
