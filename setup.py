@@ -7,9 +7,6 @@ from setuptools import setup, find_packages
 with open('README.rst') as f:
     readme_text = f.read()
 
-with open('LICENSE') as f:
-    license_text = f.read()
-
 
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
@@ -25,16 +22,18 @@ def get_version(rel_path):
     else:
         raise RuntimeError("Unable to find version string.")
 
+
 setup(
     name='stock_analyzer',
     version=get_version('stock_analyzer/__init__.py'),
     description='A package for analyzing stock patterns',
     long_description=readme_text,
+    long_description_content_type='text/x-rst',
     author='Christopher Duane Smith',
     entry_points={'console_scripts': ['stock_analyzer=stock_analyzer.cli:main']},
     author_email='daballachris@protonmail.com',
     url='https://github.com/daballachris/stock_analyzer',
-    license=license_text,
+    license='MIT',
     packages=find_packages(exclude=('tests',)),
 )
 
