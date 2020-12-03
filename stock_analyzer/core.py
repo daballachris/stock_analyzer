@@ -1,6 +1,11 @@
+import sys
+
 import requests
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
+from mpl_finance import candlestick_ohlc
+import matplotlib.dates as mdates
 
 from stock_analyzer import config
 
@@ -47,7 +52,7 @@ def lookup_ticker(ticker: str,
         content = requests.get(url=endpoint, params=payload)
     except requests.exceptions.ProxyError:
         print("ProxyError, maybe you need to connect to to your proxy server?")
-        exit()
+        sys.exit()
 
     data = content.json()
     candle_data = pd.DataFrame.from_records(data['candles'])
@@ -58,6 +63,9 @@ def lookup_ticker(ticker: str,
     candle_data = candle_data[['datetime', 'open', 'high', 'low', 'close', 'volume']]
     candle_data = candle_data[-num_entries_to_analyze:]
     candle_data = pd.DataFrame.reset_index(candle_data, drop=True)
+
+    # Convert datetime TODO: Understand the different timestamps used
+    candle_data['datetime'] = mdates.epoch2num(candle_data['datetime'] / 1000)
 
     return candle_data
 
@@ -129,8 +137,25 @@ class TrendLine:
         self.touches = touches
         self.first_day = first_day
 
-    def __str__(self):
-        return
+    def __repr__(self):
+        return f"TrendLine({self.b}, {self.m}, " \
+               f"{self.touches}, {self.first_day})"
+
+
+class Chart:
+    def __init__(self, ticker, prices, support, resistance,
+                 support_points, resistance_points):
+        self.ticker = ticker
+        self.prices = prices
+        self.support = support
+        self.resistance = resistance
+        self.support_points = support_points
+        self.resistance_points = resistance_points
+
+    def __repr__(self):
+        return f"TrendLine({self.ticker}, {self.prices}, " \
+               f"{self.support}, {self.resistance}), " \
+               f"{self.support_points}, {self.resistance_points})"
 
 
 def best_fit_line(prices: list, derivatives: list, is_support: bool = True) -> TrendLine:
@@ -180,6 +205,46 @@ def best_fit_line(prices: list, derivatives: list, is_support: bool = True) -> T
 
                 if touch_count >= best_count:
                     best_count = touch_count
-                    best_trendline = TrendLine(b, m, best_count, derivatives[derivative_start])
+                    best_trendline = TrendLine(b, m, best_count,
+                                               derivatives[derivative_start])
 
     return best_trendline
+
+
+def draw_chart(chart_data: Chart) -> None:
+    ax1 = plt.subplot2grid((1, 1), (0, 0))
+    candlestick_ohlc(ax1, chart_data.prices.values, width=0.0001, colorup='g', colordown='r')
+    ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    plt.title(chart_data.ticker)
+
+    for label in ax1.xaxis.get_ticklabels():
+        label.set_rotation(45)
+
+    # Plot points for each maxima/minima found
+    for i in chart_data.support_points:
+        plt.plot(chart_data.prices['datetime'][i], chart_data.prices['low'][i], 'b+')
+
+    for i in chart_data.resistance_points:
+        plt.plot(chart_data.prices['datetime'][i], chart_data.prices['high'][i], 'y+')
+
+    axes = plt.gca()
+
+    ymin, ymax = axes.get_ylim()
+    xmin, xmax = axes.get_xlim()
+
+    x_vals = np.array(range(len(chart_data.prices['datetime'])))
+    x_dates = np.array(chart_data.prices['datetime'])
+
+    if chart_data.resistance:
+        y_vals_res = chart_data.resistance.m * x_vals + chart_data.resistance.b
+        plt.plot(x_dates, y_vals_res, '--')
+
+    if chart_data.support:
+        y_vals_sup = chart_data.support.m * x_vals + chart_data.support.b
+        plt.plot(x_dates, y_vals_sup, '--')
+
+    # re-set the y limits
+    axes.set_ylim(ymin, ymax)
+    axes.set_xlim(xmin, xmax)
+
+    plt.show()
