@@ -24,5 +24,5 @@ setup(
 config = configparser.ConfigParser()
 config['AMERITRADE'] = {'API_KEY': ''}
 
-with open('configuration.ini', 'w') as config_file:
+with open('./stock_analyzer/configuration.ini', 'w') as config_file:
     config.write(config_file)
