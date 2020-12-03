@@ -43,9 +43,13 @@ def lookup_ticker(ticker: str,
     }
 
     # TODO: Exception handling
-    content = requests.get(url=endpoint, params=payload)
-    data = content.json()
+    try:
+        content = requests.get(url=endpoint, params=payload)
+    except requests.exceptions.ProxyError:
+        print("ProxyError, maybe you need to connect to to your proxy server?")
+        exit()
 
+    data = content.json()
     ohlc = pd.DataFrame.from_records(data['candles'])
 
     if ohlc.empty:
