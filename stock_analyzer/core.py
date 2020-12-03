@@ -42,7 +42,7 @@ def lookup_ticker(ticker: str,
         'needExtendedHoursData': 'false',
     }
 
-    # TODO: Exception handling
+    # TODO: Add more exception handling
     try:
         content = requests.get(url=endpoint, params=payload)
     except requests.exceptions.ProxyError:
@@ -50,18 +50,16 @@ def lookup_ticker(ticker: str,
         exit()
 
     data = content.json()
-    ohlc = pd.DataFrame.from_records(data['candles'])
+    candle_data = pd.DataFrame.from_records(data['candles'])
 
-    if ohlc.empty:
+    if candle_data.empty:
         return None
 
-    ohlc = ohlc[['datetime', 'open', 'high', 'low', 'close', 'volume']]
-    ohlc = ohlc[-num_entries_to_analyze:]
+    candle_data = candle_data[['datetime', 'open', 'high', 'low', 'close', 'volume']]
+    candle_data = candle_data[-num_entries_to_analyze:]
+    candle_data = pd.DataFrame.reset_index(candle_data, drop=True)
 
-    # Reset index after slice, drop old index
-    ohlc = pd.DataFrame.reset_index(ohlc, drop=True)
-
-    return ohlc
+    return candle_data
 
 
 def get_supports_and_resistances(ltp: np.array, n: int) -> (list, list):
