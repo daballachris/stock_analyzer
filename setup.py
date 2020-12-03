@@ -1,3 +1,5 @@
+import os
+import codecs
 import configparser
 from setuptools import setup, find_packages
 
@@ -8,9 +10,24 @@ with open('README.rst') as f:
 with open('LICENSE') as f:
     license_text = f.read()
 
+
+def read(rel_path):
+    here = os.path.abspath(os.path.dirname(__file__))
+    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
+        return fp.read()
+
+
+def get_version(rel_path):
+    for line in read(rel_path).splitlines():
+        if line.startswith('__version__'):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    else:
+        raise RuntimeError("Unable to find version string.")
+
 setup(
     name='stock_analyzer',
-    version='0.0.1',  # TODO: Read the version from a file
+    version=get_version('stock_analyzer/__init__.py'),
     description='A package for analyzing stock patterns',
     long_description=readme_text,
     author='Christopher Duane Smith',
