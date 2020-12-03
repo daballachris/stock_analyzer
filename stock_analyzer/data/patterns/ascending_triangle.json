@@ -1,8 +1,10 @@
 {
+   "pattern_name":"Ascending Triangle",
    "sups":[
       {
          "id":0,
-         "slope_min":0
+         "slope_min":0,
+         "slope_max":null
       }
    ],
    "ress":[
