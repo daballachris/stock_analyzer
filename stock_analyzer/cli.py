@@ -33,7 +33,8 @@ def main():
     end_date = ""
 
     try:
-        opts, args = getopt.getopt(argv[1:], "es:hv", ["help", "endDate=", "symbol=", "version"])
+        opts, args = getopt.getopt(argv[1:], "es:hv", ["help", "endDate=",
+                                                       "symbol=", "version"])
     except getopt.GetoptError:
         sys.exit(2)
 
@@ -54,7 +55,7 @@ def main():
         stock_symbol = input("Enter stock symbol: ")
 
     print(f"Looking up historical price data for {stock_symbol}")
-    price_history = core.lookup_ticker(stock_symbol, end_date=end_date)
+    price_history = core.lookup_prices(stock_symbol, end_date=end_date)
 
     if price_history is None:
         print("Nothing found!")

@@ -147,11 +147,11 @@ class TrendLine:
 class Chart:
     """Object that holds all information needed to draw a chart"""
 
-    def __init__(self, ticker: str, prices: list, support: TrendLine,
+    def __init__(self, symbol: str, prices: list, support: TrendLine,
                  resistance: TrendLine, support_points: list, resistance_points: list,
                  patterns: [Pattern]):
 
-        self.ticker = ticker
+        self.symbol = symbol
         self.prices = prices
         self.support = support
         self.resistance = resistance
@@ -162,7 +162,7 @@ class Chart:
         self.detect_pattern()
 
     def __repr__(self):
-        return f"TrendLine({self.ticker}, {self.prices}, " \
+        return f"TrendLine({self.symbol}, {self.prices}, " \
                f"{self.support}, {self.resistance}), " \
                f"{self.support_points}, {self.resistance_points}" \
                f", {self.patterns})"
@@ -239,7 +239,7 @@ class Chart:
                 self.detected_patterns.append(trade_criteria)
 
 
-def lookup_ticker(ticker: str,
+def lookup_prices(symbol: str,
                   period: int = 2,
                   period_type: str = "month",
                   frequency: int = 1,
@@ -253,7 +253,7 @@ def lookup_ticker(ticker: str,
         2, month, 1, daily -> 2 months worth of daily ticks
         2, day, 1, minute -> 2 days worth of minute ticks
 
-    :param ticker: A stock ticker. Example: 'AAPL'
+    :param symbol: A stock symbol. Example: 'AAPL'
     :param period: The number of periods worth of data being requested.
     :param period_type: The type of period. Valid values are "day", "month",
                         "year" or "ytd".
@@ -274,7 +274,7 @@ def lookup_ticker(ticker: str,
         end_date = int(
             round(datetime.datetime.strptime(end_date, '%m-%d-%Y').timestamp() * 1000))
 
-    endpoint = f"https://api.tdameritrade.com/v1/marketdata/{ticker}/pricehistory"
+    endpoint = f"https://api.tdameritrade.com/v1/marketdata/{symbol}/pricehistory"
     payload = {
         'apikey': config.config['AMERITRADE']['API_KEY'],
         'period': period,
@@ -449,7 +449,7 @@ def draw_chart(chart_data: Chart) -> None:
     candlestick_ohlc(ax1, chart_data.prices.values, width=0.0001, colorup='g',
                      colordown='r')
     ax1.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    plt.title(chart_data.ticker)
+    plt.title(chart_data.symbol)
 
     for label in ax1.xaxis.get_ticklabels():
         label.set_rotation(45)
