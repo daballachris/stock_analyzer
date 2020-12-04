@@ -26,7 +26,7 @@ def get_version(rel_path):
 setup(
     name='stock_analyzer',
     version=get_version('stock_analyzer/__init__.py'),
-    description='A package for analyzing stock patterns',
+    description='A Python package for analyzing stock patterns.',
     long_description=readme_text,
     long_description_content_type='text/x-rst',
     author='Christopher Duane Smith',
