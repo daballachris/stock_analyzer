@@ -2,6 +2,8 @@ import datetime
 import os
 import sys
 import time
+import urllib
+
 import requests
 import json
 import numpy as np
@@ -493,7 +495,14 @@ def get_s_and_p_500():
     :return: pandas.DataFrame[['Symbol', 'Security']]
     """
 
-    sp_table = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
+    s_p_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    try:
+        sp_table = pd.read_html(s_p_url)
+    except urllib.error.URLError:
+        print(f"Error reading S&P 500 stocks symbols from Wikipedia, check your internet "
+              f"connection, the url {s_p_url} and then try again.")
+        sys.exit(0)
+
     df = sp_table[0]
 
     df = df[['Symbol', 'Security']]
