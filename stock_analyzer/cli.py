@@ -24,13 +24,12 @@ def main():
     
     Examples:
         cli.py -s AAPL
-        cli.py --endDate=12-1-2020 --symbol=
+        cli.py --endDate=12-1-2020 --symbol=CHTR
         cli.py -a
     """
 
     argv = sys.argv
 
-    patterns = core.load_patterns()
     stock_symbol = ""
     end_date = ""
 
@@ -57,6 +56,8 @@ def main():
             sys.exit(0)
         elif opt in ('-a', '--all'):
             get_all = True
+
+    patterns = core.load_patterns()
 
     if get_all:
         stocks = core.get_s_and_p_500()
