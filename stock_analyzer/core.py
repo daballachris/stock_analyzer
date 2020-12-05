@@ -492,7 +492,7 @@ def get_s_and_p_500():
     A function to get all S&P 500 stock symbols.
 
     Credit: https://medium.com/wealthy-bytes/5-lines-of-python-to-automate-getting-the-s-p-500-95a632e5e567
-    :return: pandas.DataFrame[['Symbol', 'Security']]
+    :return: pandas.DataFrame[['symbol', 'company_name']]
     """
 
     s_p_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
