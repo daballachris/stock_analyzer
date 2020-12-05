@@ -483,3 +483,20 @@ def draw_chart(chart_data: Chart) -> None:
 
     print("Close chart to continue...")
     plt.show()
+
+
+def get_s_and_p_500():
+    """
+    A function to get all S&P 500 stock symbols.
+
+    Credit: https://medium.com/wealthy-bytes/5-lines-of-python-to-automate-getting-the-s-p-500-95a632e5e567
+    :return: pandas.DataFrame[['Symbol', 'Security']]
+    """
+
+    sp_table = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
+    df = sp_table[0]
+
+    df = df[['Symbol', 'Security']]
+    df = df.rename(columns={"Symbol": "symbol", "Security": "company_name"})
+
+    return df

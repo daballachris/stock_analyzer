@@ -20,10 +20,12 @@ def main():
         -e --endDate Last day of data being requested. Default is today.
         -s --symbol Stock symbol you want to analyze. If not provided, you will be """\
                   """prompted for it.
+        -a --all Runs for all S&P 500 stocks
     
     Examples:
         cli.py -s AAPL
-        cli.py --endDate=12-1-2020 --symbol=CHTR
+        cli.py --endDate=12-1-2020 --symbol=
+        cli.py -a
     """
 
     argv = sys.argv
@@ -33,10 +35,13 @@ def main():
     end_date = ""
 
     try:
-        opts, args = getopt.getopt(argv[1:], "es:hv", ["help", "endDate=",
-                                                       "symbol=", "version"])
+        opts, args = getopt.getopt(argv[1:], "es:hva", ["help", "endDate=",
+                                                        "symbol=", "version",
+                                                        "all"])
     except getopt.GetoptError:
         sys.exit(2)
+
+    get_all = False
 
     for opt, arg in opts:
         if opt in ('-h', '--help'):
@@ -50,9 +55,22 @@ def main():
             from stock_analyzer import __version__
             print(__version__)
             sys.exit(0)
+        elif opt in ('-a', '--all'):
+            get_all = True
 
-    if not stock_symbol:
-        stock_symbol = input("Enter stock symbol: ")
+    if get_all:
+        stocks = core.get_s_and_p_500()
+        for stock in stocks['symbol']:
+            stock_symbol = stock
+            generate_chart(stock_symbol, end_date, patterns)
+    else:
+        if not stock_symbol:
+            stock_symbol = input("Enter stock symbol: ")
+
+        generate_chart(stock_symbol, end_date, patterns)
+
+
+def generate_chart(stock_symbol, end_date, patterns):
 
     print(f"Looking up historical price data for {stock_symbol}")
     price_history = core.lookup_prices(stock_symbol, end_date=end_date)

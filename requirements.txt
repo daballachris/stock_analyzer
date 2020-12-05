@@ -4,3 +4,4 @@ mpl_finance
 numpy
 scipy
 requests
+html5lib
