@@ -15,11 +15,11 @@ Usage
 Commands
 """"""""
 - cli.py
-- cli.py -h|--help
-- cli.py -v|--version
-- cli.py -e|--endDate
-- cli.py -s|--symbol
-- cli.py -a|--all
+- cli.py -h | --help
+- cli.py -v | --version
+- cli.py -e | --endDate
+- cli.py -s | --symbol
+- cli.py -a | --all
 
 Options
 """""""
