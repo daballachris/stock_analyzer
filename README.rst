@@ -27,7 +27,7 @@ Options
 - -v --version Show the version number
 - -e --endDate Last day of data being requested. Default is today.
 - -s --symbol Stock symbol you want to analyze. If not provided, you will be prompted for it.
-- -s --all Gets all S&P 500 stocks and analyzes them
+- -a --all Gets all S&P 500 stocks and analyzes them
     
 Examples
 """"""""
