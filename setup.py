@@ -35,6 +35,17 @@ setup(
     url='https://github.com/daballachris/stock_analyzer',
     license='MIT',
     packages=find_packages(exclude=('tests',)),
+
+    install_requires=[
+        'pandas',
+        'matplotlib',
+        'mpl_finance',
+        'numpy',
+        'scipy',
+        'requests',
+        'html5lib',
+        'BeautifulSoup4',
+    ],
 )
 
 config = configparser.ConfigParser()

@@ -23,7 +23,7 @@ def load_patterns() -> list:
     """
 
     patterns = []
-    pattern_directory = os.path.join(os.path.dirname(__file__), './data/patterns')
+    pattern_directory = './stock_analyzer/data/patterns'
     for filename in os.listdir(pattern_directory):
         with open(os.path.join(pattern_directory, filename)) as json_file:
             try:

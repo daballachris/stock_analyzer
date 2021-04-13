@@ -4,7 +4,8 @@ import configparser
 
 # Read user configuration data from configuration.ini
 config = configparser.ConfigParser()
-config.read(os.path.join(os.path.dirname(__file__), './', 'configuration.ini'))
+file_name = './stock_analyzer/configuration.ini'
+config.read(file_name)
 
 if not config['AMERITRADE']['API_KEY']:
     print("You must specify your Ameritrade API key in configuration.ini first.")
